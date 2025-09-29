@@ -59,7 +59,7 @@ async def process_single_project(project_path: Path, args: argparse.Namespace, p
     project_name = project_path.name
     post_format = args.post_format
     
-    # 根据消融实验设置调整项目名称和输出信息
+    # Adjust project name and output information according to ablation experiment settings
     ablation_mode = args.ablation
     if ablation_mode != 'none':
         project_name = f"{project_path.name}_ablation_{ablation_mode}"
@@ -86,7 +86,7 @@ async def process_single_project(project_path: Path, args: argparse.Namespace, p
     try:
         tqdm.write("\n--- Stage 1/4: Extracting Text from PDF ---")
         txt_output_path = work_dir / f"{project_name}.txt"
-        # 传递 ablation_mode 参数
+        # Pass the ablation_mode parameter
         await run_text_extraction(str(pdf_path), str(txt_output_path), ablation_mode=ablation_mode)
         if not txt_output_path.exists():
             tqdm.write(f"[!] Text extraction failed for {pdf_path.name}. Skipping.")
@@ -110,7 +110,7 @@ async def process_single_project(project_path: Path, args: argparse.Namespace, p
                         tqdm.write(f"[*] Cache miss for PDF figures '{pdf_path.name}'. Running extraction.")
                 extraction_work_dir = work_dir / "figure_extraction"
                 extraction_work_dir.mkdir()
-                paired_dir = run_figure_extraction(str(pdf_path), str(extraction_work_dir))
+                paired_dir = run_figure_extraction(str(pdf_path), str(extraction_work_dir), args.model_path)
                 
                 if paired_dir and cached_figures_path:
                     tqdm.write(f"[*] Saving extracted figures to cache at: {cached_figures_path}")
@@ -160,7 +160,7 @@ async def process_single_project(project_path: Path, args: argparse.Namespace, p
             pdf_hash=pdf_hash,
             description_cache_dir=str(description_cache_dir) if description_cache_dir else None,
             disable_qwen_thinking=args.disable_qwen_thinking,
-            ablation_mode=ablation_mode # <-- 传递消融模式参数
+            ablation_mode=ablation_mode # <-- Pass the ablation mode parameter
         )
         if not final_post or final_post.startswith("Error:"):
             tqdm.write(f"[!] Failed to generate final post. Error: {final_post}. Skipping.")
@@ -236,7 +236,7 @@ async def process_baseline_project(
                 
                 extraction_work_dir = work_dir / "figure_extraction"
                 extraction_work_dir.mkdir()
-                extracted_data_dir = run_figure_extraction(str(pdf_path), str(extraction_work_dir))
+                extracted_data_dir = run_figure_extraction(str(pdf_path), str(extraction_work_dir), args.model_path)
                 
                 if extracted_data_dir and any(Path(extracted_data_dir).iterdir()):
                     paired_dir = extracted_data_dir
@@ -300,9 +300,11 @@ async def main():
     parser.add_argument("--input-dir", type=str, required=True, help="Directory containing the project subfolders.")
     parser.add_argument("--output-dir", type=str, required=True, help="Directory where the final posts will be saved.")
     
-    parser.add_argument("--text-api-key", type=str, required=True, help="Your API Key for text models.")
+    parser.add_argument("--model-path", type=str, default="pragent/model/doclayout_yolo_docstructbench_imgsz1024.pt", help="Path to the YOLO model for document layout analysis.")
+
+    parser.add_argument("--text-api-key", type=str, default=None, help="Your API Key for text models.")
     parser.add_argument("--vision-api-key", type=str, default=None, help="Your API Key for vision models. If not provided, it defaults to the text_api_key.")
-    parser.add_argument("--text-api-base", type=str, default="https://api.openai.com/v1", help="The base URL for the text model API.")
+    parser.add_argument("--text-api-base", type=str, default=None, help="The base URL for the text model API.")
     parser.add_argument("--vision-api-base", type=str, default=None, help="The base URL for the vision model API. If not provided, it defaults to the text_api_base.")
 
     parser.add_argument("--text-model", type=str, default="gpt-4o", help="Model for text generation tasks.")
@@ -310,9 +312,9 @@ async def main():
     parser.add_argument("--concurrency", type=int, default=1, help="Maximum number of concurrent projects to process.")
 
     parser.add_argument(
-        "--baseline-mode", 
-        type=str, 
-        default=None, 
+        "--baseline-mode",
+        type=str,
+        default=None,
         choices=["original", "fewshot", "with_figure"],
         help="If specified, run a specific baseline generation process instead of the full pipeline."
     )
@@ -321,26 +323,38 @@ async def main():
 
     parser.add_argument("--cache-dir", type=Path, default=None, help="Optional. Directory to cache reusable assets like extracted figures and AI-generated descriptions.")
     parser.add_argument("--post-format", type=str, default="rich", choices=["rich", "description_only", "text_only"], help="Specify the output format for the final post. 'rich': full text and images. 'description_only': text with image descriptions embedded. 'text_only': just the text.")
-    
+
     parser.add_argument("--disable-qwen-thinking", action="store_true", help="Disable the 'thinking' mode for Qwen models by setting enable_thinking=False.")
-    
+
     parser.add_argument(
-        "--ablation", 
-        type=str, 
-        default="none", 
+        "--ablation",
+        type=str,
+        default="none",
         choices=[
-            "none", 
-            "no_logical_draft",      
-            "no_visual_analysis",      
-            "no_visual_integration", 
+            "none",
+            "no_logical_draft",
+            "no_visual_analysis",
+            "no_visual_integration",
             "no_hierarchical_summary",
             "no_platform_adaptation",
             "stage2"
         ],
         help="Specify an ablation study mode. 'stage2' combines no_logical_draft, no_visual_analysis, and no_visual_integration."
     )
-    
+
     args = parser.parse_args()
+
+    # Load environment variables from .env file
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    # API Key and Base URL handling
+    args.text_api_key = args.text_api_key or os.getenv("OPENAI_API_KEY")
+    args.text_api_base = args.text_api_base or os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1")
+    
+    if not args.text_api_key:
+        print("Error: OPENAI_API_KEY is not configured. Please pass it as an argument or set it in your .env file.")
+        return
 
     if args.vision_api_key is None:
         args.vision_api_key = args.text_api_key

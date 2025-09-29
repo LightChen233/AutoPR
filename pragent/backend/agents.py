@@ -10,31 +10,31 @@ import tiktoken
 
 def _prepare_extra_body(model_name: str, disable_qwen_thinking: bool) -> Optional[Dict[str, Any]]:
     if "qwen3" in model_name.lower() and disable_qwen_thinking:
-        tqdm.write("[*] 已为 Qwen3 模型启用 'disable_thinking' 模式。")
+        tqdm.write("[*] 'disable_thinking' mode has been enabled for the Qwen3 model.")
         return {"chat_template_kwargs": {"enable_thinking": False}}
     return None
 
 @asynccontextmanager
 async def setup_client(api_key: str, base_url: str) -> AsyncIterator[AsyncOpenAI]:
-    """使用异步上下文管理器来创建和妥善销毁API客户端。"""
+    """Use an asynchronous context manager to create and properly destroy the API client."""
     client = None
     if not api_key or "sk-" not in api_key:
-        tqdm.write("[!] 错误: API Key无效或未设置。")
+        tqdm.write("[!] Error: API Key is invalid or not set.")
         yield None
         return
 
     try:
-        tqdm.write("[*] 正在初始化API客户端...")
+        tqdm.write("[*] Initializing API client...")
         client = AsyncOpenAI(api_key=api_key, base_url=base_url, timeout=300.0)
         yield client
     except Exception as e:
-        tqdm.write(f"[!] 初始化AsyncOpenAI客户端时出错: {e}")
+        tqdm.write(f"[!] Error initializing AsyncOpenAI client: {e}")
         yield None
     finally:
         if client:
-            tqdm.write("[*] 正在关闭API客户端连接...")
+            tqdm.write("[*] Closing API client connection...")
             await client.close()
-            tqdm.write("[*] API客户端已关闭。")
+            tqdm.write("[*] API client closed.")
 
 def encode_image_to_base64(image_path: str) -> str:
 
@@ -42,13 +42,12 @@ def encode_image_to_base64(image_path: str) -> str:
         with open(image_path, "rb") as image_file:
             return base64.b64encode(image_file.read()).decode('utf-8')
     except Exception as e:
-        tqdm.write(f"[!] 编码图片失败 {image_path}: {e}")
+        tqdm.write(f"[!] Failed to encode image {image_path}: {e}")
         return ""
 
 
 async def call_text_llm_api(local_client: AsyncOpenAI, system_prompt: str, user_prompt: str, model: str, disable_qwen_thinking: bool = False) -> str:
-    """异步调用仅处理文本的大语言模型API。"""
-    if not local_client: return "错误: API客户端未配置。"
+    if not local_client: return "Error: API client is not configured."
     try:
         extra_body = _prepare_extra_body(model, disable_qwen_thinking)
         completion = await local_client.chat.completions.create(
@@ -61,12 +60,11 @@ async def call_text_llm_api(local_client: AsyncOpenAI, system_prompt: str, user_
         )
         return completion.choices[0].message.content
     except Exception as e:
-        return f"错误: 文本API调用失败 - {e}"
-
+                return f"Error: Text API call failed - {e}"
 
 async def call_multimodal_llm_api(local_client: AsyncOpenAI, system_prompt: str, user_prompt_parts: list, model: str, disable_qwen_thinking: bool = False) -> str:
 
-    if not local_client: return "错误: API客户端未配置。"
+    if not local_client: return "Error: API client is not configured."
     try:
         extra_body = _prepare_extra_body(model, disable_qwen_thinking)
         messages = [
@@ -81,7 +79,7 @@ async def call_multimodal_llm_api(local_client: AsyncOpenAI, system_prompt: str,
         )
         return completion.choices[0].message.content
     except Exception as e:
-        return f"错误: 多模态API调用失败 - {e}"
+        return f"Error: Multimodal API call failed - {e}"
 
 class BlogGeneratorAgent:
 
@@ -103,7 +101,7 @@ class FigureDescriberAgent:
         base64_figure = encode_image_to_base64(figure_path)
         base64_caption_img = encode_image_to_base64(caption_path)
         if not all([base64_figure, base64_caption_img]):
-            return "错误: 无法编码一张或多张图片。"
+            return "Error: Unable to encode one or more images."
 
         user_prompt = [
             {"type": "text", "text": "Please analyze this figure and its accompanying caption. Provide a detailed, blog-ready description."},
@@ -144,7 +142,7 @@ async def call_text_llm_api_with_token_count(
     Calls the text LLM API and returns the content and the 'think' token count.
     """
     if not local_client: 
-        return "错误: API客户端未配置。", 0
+        return "Error: API client is not configured.", 0
     try:
         params = {
             "model": model,
@@ -173,4 +171,4 @@ async def call_text_llm_api_with_token_count(
         return content, think_token_count
         
     except Exception as e:
-        return f"错误: 文本API调用失败 - {e}", 0
+        return f"Error: Text API call failed - {e}", 0

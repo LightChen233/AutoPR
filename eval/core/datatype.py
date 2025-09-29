@@ -43,7 +43,6 @@ class PromotionDataItem(BaseModel):
     arxiv_id: Optional[str] = None
     PDF_path: Optional[str] = None
     platform_source: str = Field(default="XHS_NOTE")
-    # MODIFIED: Changed alias to match original code, was figure_path
     image_links: List[str] = Field(..., alias='figure_path')
     markdown_content: str
     origin_data: Optional[Dict[str, Any]] = None

@@ -8,7 +8,6 @@ from openai import AsyncOpenAI
 import re
 import os
 import json
-# ADDED FOR OCR & CACHE SAFETY: New imports for OCR
 import pytesseract
 from PIL import Image
 import asyncio
@@ -45,7 +44,7 @@ PROMPT_MAPPING = {
 }
 
 
-# ADDED FOR OCR & CACHE SAFETY: Asynchronous OCR helper function
+# Asynchronous OCR helper function
 async def ocr_image_to_text(image_path: str) -> str:
     """
     Performs OCR on an image file to extract text asynchronously.
@@ -167,7 +166,7 @@ async def generate_final_post(
                     items_with_descriptions = json.load(f)
             
             else:
-                # MODIFIED: Trigger this ablation also for 'stage2'
+                # Trigger this ablation also for 'stage2'
                 if ablation_mode in ['no_visual_analysis', 'stage2']:
                     ablation_reason = "no_visual_analysis" if ablation_mode != 'stage2' else 'stage2'
                     tqdm.write(f"[*] ABLATION ({ablation_reason}): Using OCR on caption images instead of vision model.")
@@ -207,7 +206,7 @@ async def generate_final_post(
                                 temp_items_with_desc.append(item)
                         items_with_descriptions = temp_items_with_desc
 
-                # MODIFIED: Prevent caching for 'stage2' as well
+                # Prevent caching for 'stage2' as well
                 if cache_file_path and ablation_mode not in ['no_visual_analysis', 'stage2']:
                     tqdm.write(f"[*] Saving all descriptions to cache file: {cache_file_path}")
                     with cache_file_path.open('w', encoding='utf-8') as f:

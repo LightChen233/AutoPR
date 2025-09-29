@@ -18,15 +18,15 @@ CLASS_NAMES = {
 
 def extract_and_save_layout_components(image_path, model_path, save_base_dir="./cropped_results", imgsz=1024, conf=0.2, device="cuda:0"):
     """
-    从图像中提取文档布局组件，并按类别保存截图。
+    Extract document layout components from an image and save screenshots by category.
 
     Args:
-        image_path (str): 输入图像路径
-        model_path (str): 模型权重路径（.pt）
-        save_base_dir (str): 保存截图的根目录
-        imgsz (int): 输入图像的尺寸（会缩放到这个大小）
-        conf (float): 检测框的置信度阈值
-        device (str): 使用的计算设备，比如 'cuda:0' 或 'cpu'
+        image_path (str): Input image path
+        model_path (str): Model weight path (.pt)
+        save_base_dir (str): Root directory to save screenshots
+        imgsz (int): The size of the input image (will be scaled to this size)
+        conf (float): Confidence threshold for detection boxes
+        device (str): The computing device to use, such as 'cuda:0' or 'cpu'
     """
     model = YOLOv10(model_path)
     image = Image.open(image_path)
@@ -48,4 +48,4 @@ def extract_and_save_layout_components(image_path, model_path, save_base_dir="./
             cropped = cropped.convert('RGB')
         save_path = os.path.join(save_dir, f"{class_name}_{idx}_score{score:.2f}.jpg")
         cropped.save(save_path)
-    tqdm.write(f"共保存 {len(boxes)} 张截图，按类别分别保存在 {save_base_dir}/")
+    tqdm.write(f"Saved a total of {len(boxes)} screenshots, saved by category in {save_base_dir}/")

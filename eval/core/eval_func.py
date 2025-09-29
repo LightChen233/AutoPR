@@ -14,7 +14,6 @@ from openai import AsyncOpenAI
 
 from rouge_score import rouge_scorer
 from bert_score import score as bert_score_calculator
-# MODIFIED: Import new data types
 from eval.core.datatype import PromotionDataItem, FineGrainedChecklist, ImageHandlingStrategy, BaseEvalType
 from eval.core.llm_interface import call_llm_api
 from eval.core.utils import extract_text_from_pdf
@@ -36,7 +35,7 @@ BERT_SCORE_CONFIGS = {
     }
 }
 
-# --- NEW: Centralized prompt snippets for image association ---
+# Centralized prompt snippets for image association
 IMAGE_ASSOCIATION_PROMPTS = {
     "single_note": {
         "real": "\n\n#### Image Association\nThe social media post's text will be provided. I will also provide one or more images separately. The intended position of these images within the post text will be indicated by Markdown-style placeholders. You must associate these placeholders with the corresponding images to understand their context and narrative function.",
@@ -79,14 +78,14 @@ async def evaluate_single_note(
         item_data: PromotionDataItem,
         instruction: str,
         model: str = "gemini-1.5-flash-latest",
-        include_images: ImageHandlingStrategy = ImageHandlingStrategy.NONE, # MODIFIED
+        include_images: ImageHandlingStrategy = ImageHandlingStrategy.NONE,
         include_pdf: bool = False,
         response_schema: Optional[Dict[str, Any]] = None,
         n_samples: int = 1,
-        force_json_format_in_prompt: bool = False # NEW
+        force_json_format_in_prompt: bool = False
 ) -> Dict[str, Any]:
     
-    # NEW: Dynamically generate and append image association prompt
+    # Dynamically generate and append image association prompt
     image_prompt_snippet = _get_image_association_prompt(include_images, BaseEvalType.SINGLE_NOTE)
     instruction += image_prompt_snippet
     
@@ -138,12 +137,12 @@ async def _run_single_preference_pass(
     note_b: PromotionDataItem,
     instruction: str, model: str, include_images: ImageHandlingStrategy, include_pdf: bool,
     response_schema: Optional[Dict[str, Any]],
-    force_json_format_in_prompt: bool, # NEW
+    force_json_format_in_prompt: bool,
     n_samples: int = 1
-) -> List[Tuple[Optional[str], Optional[Dict[str, Any]]]]: # MODIFIED return type
+) -> List[Tuple[Optional[str], Optional[Dict[str, Any]]]]:
     """Runs one comparison and returns a list of results, one for each sample."""
     
-    # NEW: Dynamically generate and append image association prompt
+    # Dynamically generate and append image association prompt
     image_prompt_snippet = _get_image_association_prompt(include_images, BaseEvalType.PREFERENCE)
     instruction += image_prompt_snippet
     
@@ -203,10 +202,9 @@ async def _run_single_preference_pass(
 async def evaluate_preference(
         client: AsyncOpenAI,
         pr_test_item: PromotionDataItem, original_item: PromotionDataItem,
-        instruction: str, model: str, include_images: ImageHandlingStrategy, include_pdf: bool, # MODIFIED
+        instruction: str, model: str, include_images: ImageHandlingStrategy, include_pdf: bool,
         response_schema: Optional[Dict[str, Any]] = None,
-        n_samples: int = 1, enable_rotation: bool = False,
-        force_json_format_in_prompt: bool = False # NEW
+        force_json_format_in_prompt: bool = False
 ) -> Dict[str, Any]:
 
     votes = Counter()
@@ -263,10 +261,10 @@ async def evaluate_fine_grained(
         item_data: PromotionDataItem,
         eval_criteria_base_path: str,
         criteria_subdir: str,
-        instruction: str, model: str, include_images: ImageHandlingStrategy, include_pdf: bool, # MODIFIED
+        instruction: str, model: str, include_images: ImageHandlingStrategy, include_pdf: bool,
         response_schema: Optional[Dict[str, Any]] = None,
         n_samples: int = 1,
-        force_json_format_in_prompt: bool = False # NEW
+        force_json_format_in_prompt: bool = False
 ) -> Dict[str, Any]:
     if not item_data.arxiv_id:
         return {"status": "failed", "error": "arxiv_id is missing for fine-grained evaluation."}

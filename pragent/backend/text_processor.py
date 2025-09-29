@@ -53,7 +53,6 @@ def split_text_by_structure(long_text: str) -> Tuple[str, str]:
     tqdm.write(f"[*] Successfully separated header via keywords ({len(header_text)} characters).")
     return header_text, body_text
 
-# --- MODIFIED: Added disable_qwen_thinking parameter ---
 async def summarize_long_text(long_text: str, model: str, client: AsyncOpenAI, disable_qwen_thinking: bool = False) -> str:
     """
     Asynchronously summarizes long text using a structure-aware hybrid strategy.

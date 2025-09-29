@@ -13,14 +13,15 @@ QUALITY_SETTINGS = {
 
 async def read_and_preprocess_image_as_base64(image_path: str, quality: str = 'high') -> str | None:
     """
-    异步读取、根据指定的质量等级预处理图片，并返回Base64编码的字符串。
+    Asynchronously reads and preprocesses an image based on the specified quality level,
+    and returns a Base64 encoded string.
 
     Args:
-        image_path: 图片文件的路径。
-        quality: 质量等级 ('high', 'medium', 'low')。
-    
+        image_path: The path to the image file.
+        quality: The quality level ('high', 'medium', 'low').
+
     Returns:
-        经过预处理和Base64编码的图片字符串，或在出错时返回 None。
+        A Base64 encoded string of the preprocessed image, or None if an error occurs.
     """
     if quality not in QUALITY_SETTINGS:
         raise ValueError(f"Invalid quality setting: {quality}. Must be one of {list(QUALITY_SETTINGS.keys())}")
@@ -51,7 +52,7 @@ async def read_and_preprocess_image_as_base64(image_path: str, quality: str = 'h
         print(f"ERROR: Could not read or preprocess image at {image_path}: {e}")
         return None
 
-# --- NEW ---
+
 async def extract_text_from_pdf(pdf_path: str) -> str | None:
     """Extracts all text from a PDF file."""
     if not pdf_path:

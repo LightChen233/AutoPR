@@ -225,7 +225,7 @@ def calculate_metrics(metric_results_path: str, selected_ids_path: Optional[str]
     avg_fg_possible = calculate_average(fg_possible_scores)
     factual_score = avg_fg_obtained / avg_fg_possible if avg_fg_possible > 0 else 0.0
     
-    # [MODIFIED] Fidelity is now a simple average
+    # Fidelity is now a simple average
     fidelity_overall = calculate_average([at_acc, factual_score])
 
     # 2. Calculate Engagement Metrics
@@ -315,7 +315,7 @@ def calculate_metrics(metric_results_path: str, selected_ids_path: Optional[str]
     )
     #print(latex_line)
 
-    # --- [NEW] LaTeX Output Line (All Metrics Average) ---
+    # --- LaTeX Output Line (All Metrics Average) ---
     print("\n--- LaTeX Output Line ---")
     all_metrics_for_avg = []
     

@@ -14,7 +14,6 @@ from typing import Any, Dict, Set, Tuple, List
 from tqdm import tqdm
 from openai import AsyncOpenAI
 
-# MODIFIED: Import new data type
 from eval.core.datatype import PromotionDataItem, MetricItem, EvaluationConfig, ImageHandlingStrategy
 from eval.core.eval_func import (
     evaluate_single_note,
@@ -349,7 +348,7 @@ async def main():
                     print(f"  INFO [{eval_config.eval_name}]: Enabling force_json_prompt.")
                     eval_config.force_json_format_in_prompt = True
                 
-                # 4. NEW: Override include_images strategy with the special rule
+                # 4. Override include_images strategy with the special rule
                 if args.include_images_override and eval_config.include_images != ImageHandlingStrategy.NONE:
                     override_strategy = ImageHandlingStrategy(args.include_images_override)
                     if eval_config.include_images != override_strategy:

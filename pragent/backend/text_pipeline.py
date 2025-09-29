@@ -9,7 +9,6 @@ from tqdm.asyncio import tqdm
 from pragent.backend.pdf2html import convert_pdf_to_text_only_html
 from pragent.backend.html2txt import convert_html_to_txt
 
-# MODIFIED FOR ABLATION STUDY: Added ablation_mode parameter
 async def pipeline(pdf_path: str, output_txt_path: str, ablation_mode: str = "none"):
     """
     Defines the complete ASYNCHRONOUS conversion flow from PDF to TXT.
