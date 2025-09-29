@@ -27,7 +27,7 @@ def reconstruct_dataset(repo_id, subset, output_dir):
     # --- Step 1: Setup directories ---
     # Directories are now created with exist_ok=True to support merging.
     base_dir = os.path.abspath(os.path.join(output_dir, os.pardir, os.pardir))
-    input_dir = os.path.join(base_dir, "input_dir")
+    input_dir = os.path.join(base_dir, "papers")
     
     fine_grained_dir = os.path.join(output_dir, "Fine_grained_evaluation")
     twitter_dir = os.path.join(output_dir, "twitter_figure")

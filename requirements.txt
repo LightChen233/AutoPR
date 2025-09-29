@@ -25,3 +25,4 @@ simpledorff==0.0.2
 tiktoken==0.11.0
 tqdm==4.67.1
 lxml
+huggingface_hub

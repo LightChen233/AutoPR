@@ -23,13 +23,13 @@
 
 <p align="center">
   	<b>
-    | [<a href="https://arxiv.org/abs/XXX">📝 ArXiv</a>] | [<a href="https://github.com/LightChen233/AutoPR">📚 Github Code</a>] | [<a href="https://huggingface.co/datasets/LightChen2333/PRBench">🤗 PRBench</a>] | [<a href="https://huggingface.co/datasets/LightChen2333/PRBench">🔥 PRAgent Demo</a>] |
+    | [<a href="https://arxiv.org/abs/XXX">📝 ArXiv</a>] | [<a href="https://github.com/LightChen233/AutoPR">📚 Github Code</a>] | [<a href="https://huggingface.co/datasets/yzweak/PRBench">🤗 PRBench</a>] | [<a href="https://huggingface.co/spaces/yzweak/AutoPR">🔥 PRAgent Demo</a>] |
     </b>
     <br />
 </p>
 
 
-This is the official implementation for **"AUTOPR: LET'S AUTOMATE YOUR ACADEMIC PROMOTION\!"**.
+This is the official implementation for **"AUTOPR: LET'S AUTOMATE YOUR ACADEMIC PROMOTION!**".
 
 ![](assets/images/title.png)
 
@@ -83,9 +83,13 @@ We formalize **AutoPR (Automatic Promotion)**, a new task to automatically trans
 
 Before running the code, you need to configure your Large Language Model (LLM) API keys and endpoints.
 
-【TODO：貌似没有.env文件？而且还有个什么text api key】
+First, copy the example `.env.example` file to a new `.env` file:
 
-Create Edit the `.env` file with your API credentials:
+```bash
+cp .env.example .env
+```
+
+Then, edit the `.env` file with your API credentials:
 
 ```python
 # Main API Base URL for text and vision models (e.g., OpenAI, Qwen, etc.)
@@ -104,13 +108,17 @@ The entire workflow, from generation to evaluation, is managed through simple sh
 
 ### 5.1 Step 1: Preparation
 
-【TODO：能不能huggingface形式？】
+Download the PRBench dataset from Hugging Face Hub. You can choose to download the full dataset or the core subset.
+
 ```bash
-chmod +x script/data_process.sh
-./script/data_process.sh
+# Download the full dataset
+python3 download_and_reconstruct.py --subset full
+
+# Or download the core subset
+python3 download_and_reconstruct.py --subset core
 ```
 
-You still need to download the [DocLayout-YOLO](https://huggingface.co/juliozhao/DocLayout-YOLO-DocStructBench/blob/main/doclayout_yolo_docstructbench_imgsz1024.pt) model to ``pragent/model``.Alternatively, you can modify the model path in the ``pragent/backend/figure_table_pipeline.py`` file
+You also need to download the [DocLayout-YOLO](https://huggingface.co/juliozhao/DocLayout-YOLO-DocStructBench/blob/main/doclayout_yolo_docstructbench_imgsz1024.pt) model. You can specify the path to the model using the `--model-path` argument in the generation script.
 
 ### 5.2 Step 2: Evaluate Post Quality
 
@@ -135,8 +143,12 @@ chmod +x scripts/calc_results.sh
 ![](assets/images/pragent.png)
 ### 6.1 Step 1: Preparation
 
-【TODO：能不能传参形式？】
-You need to download the [DocLayout-YOLO](https://huggingface.co/juliozhao/DocLayout-YOLO-DocStructBench/blob/main/doclayout_yolo_docstructbench_imgsz1024.pt) model to ``pragent/model``.Alternatively, you can modify the model path in the ``pragent/backend/figure_table_pipeline.py`` file
+You need to download the [DocLayout-YOLO](https://huggingface.co/juliozhao/DocLayout-YOLO-DocStructBench/blob/main/doclayout_yolo_docstructbench_imgsz1024.pt) model. When running the generation script, you can specify the path to the model using the `--model-path` argument.
+
+for example:
+```bash
+python3 pragent/run.py --model-path /path/to/your/model.pt ...
+```
 
 ### 6.2 Step 2: Generate Promotional Posts (PRAgent)
 
@@ -157,7 +169,7 @@ First, prepare your input directory. The script automatically determines the tar
     └── paper.pdf
 ```
 
-If you have run Step 0, you can use the ``eval/data/input_pdf`` folder as input
+If you have run ``download_and_reconstruct.py``, you can use the ``papers`` folder as input
 
 Next, configure and run the generation script.
 ```bash
