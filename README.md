@@ -33,7 +33,7 @@ This is the official implementation for **"AUTOPR: LET'S AUTOMATE YOUR ACADEMIC 
 
 ![](assets/images/title.png)
 
-## 👀 Overview
+## 👀 1. Overview
 As the volume of peer-reviewed research surges, scholars increasingly rely on social platforms for discovery, while authors invest significant effort in promotion to sustain visibility and citations. This project aims to address that challenge.
 
 
@@ -42,23 +42,28 @@ We formalize **AutoPR (Automatic Promotion)**, a new task to automatically trans
 
 ![](assets/images/intro.png)
 
-## 🔥 News
+-----
+
+## 🔥 2. News
 - **[2025-10-08]** Our 🔥🔥 **PRAgent** 🔥🔥 and 🔥🔥 **PRBench** 🔥🔥 benchmark is released! You can download the dataset from here.
 
 
+-----
 
-## 🏅 Leaderboard
+## 🏅 3. Leaderboard
 
-### PRBench-Core
+### 3.1 PRBench-Core
 ![](assets/images/prbench-core.png)
 ![](assets/images/prbench-core-1.png)
-### PRBench-Full
+
+### 3.2 PRBench-Full
 ![](assets/images/prbench-full.png)
 
+-----
 
+## 🛠️ 4. Installation & Configuration
 
-
-## 🛠️ Installation
+### 4.1 Environment Installation
 
 1.  Create and activate a Conda environment (recommended):
 
@@ -73,11 +78,12 @@ We formalize **AutoPR (Automatic Promotion)**, a new task to automatically trans
     pip install -r requirements.txt
     ```
 
------
 
-## ⚙️ Configuration
+### 4.2 Configuration
 
 Before running the code, you need to configure your Large Language Model (LLM) API keys and endpoints.
+
+【TODO：貌似没有.env文件？而且还有个什么text api key】
 
 Create Edit the `.env` file with your API credentials:
 
@@ -92,12 +98,13 @@ The scripts will automatically load these environment variables.
 
 -----
 
-## ⚡ PRBench Evaluation
+## ⚡ 5. PRBench Evaluation
 
 The entire workflow, from generation to evaluation, is managed through simple shell scripts.
 
-### Step 0: Preparation
+### 5.1 Step 1: Preparation
 
+【TODO：能不能huggingface形式？】
 ```bash
 chmod +x script/data_process.sh
 ./script/data_process.sh
@@ -105,7 +112,33 @@ chmod +x script/data_process.sh
 
 You still need to download the [DocLayout-YOLO](https://huggingface.co/juliozhao/DocLayout-YOLO-DocStructBench/blob/main/doclayout_yolo_docstructbench_imgsz1024.pt) model to ``pragent/model``.Alternatively, you can modify the model path in the ``pragent/backend/figure_table_pipeline.py`` file
 
-### Step 1: Generate Promotional Posts (PRAgent)
+### 5.2 Step 2: Evaluate Post Quality
+
+After generation, use the evaluation script to assess the quality of the posts in your output directory.
+
+```bash
+chmod +x scripts/run_eval.sh
+./scripts/run_eval.sh
+```
+
+### 5.3 Step 3: Calculate and View Metrics
+
+Finally, run the calculation script to aggregate the raw evaluation data into a formatted results table.
+
+```bash
+chmod +x scripts/calc_results.sh
+./scripts/calc_results.sh
+```
+
+## 🕹️ 6. PRAgent Generation
+
+![](assets/images/pragent.png)
+### 6.1 Step 1: Preparation
+
+【TODO：能不能传参形式？】
+You need to download the [DocLayout-YOLO](https://huggingface.co/juliozhao/DocLayout-YOLO-DocStructBench/blob/main/doclayout_yolo_docstructbench_imgsz1024.pt) model to ``pragent/model``.Alternatively, you can modify the model path in the ``pragent/backend/figure_table_pipeline.py`` file
+
+### 6.2 Step 2: Generate Promotional Posts (PRAgent)
 
 
 
@@ -132,29 +165,13 @@ chmod +x scripts/run_pragent.sh
 ./script/run_generation.sh
 ```
 
-### Step 2: Evaluate Post Quality (PREval)
 
-After generation, use the evaluation script to assess the quality of the posts in your output directory.
+### PRAgent Case
+**Baseline:**
+![](assets/images/case-1.png)
 
-```bash
-chmod +x scripts/run_eval.sh
-./scripts/run_eval.sh
-```
-
-### Step 3: Calculate and View Metrics
-
-Finally, run the calculation script to aggregate the raw evaluation data into a formatted results table.
-
-```bash
-chmod +x scripts/calc_results.sh
-./scripts/calc_results.sh
-```
-
-## 🕹️ PRAgent Generation
-
-![](assets/images/pragent.png)
-
-
+**PRAgent:**
+![](assets/images/case-2.png)
 
 ## ☎️ Contact
 If interested in our work, please contact us at:
