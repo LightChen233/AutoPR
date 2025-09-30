@@ -6,7 +6,6 @@ METRIC_OUTPUT_PATH="metric_results.jsonl"
 
 # Optional: Path to a .txt file with specific IDs to include in the calculation.
 # Leave empty to calculate metrics for all available IDs.
-# SELECTED_IDS_PATH="eval/data/selected_ids.txt"
 SELECTED_IDS_PATH=""
 
 # --- Execution ---

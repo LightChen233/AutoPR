@@ -12,12 +12,15 @@ CACHE_DIR="pragent_cache"
 
 # API and Model Settings
 TEXT_API_KEY="YOUR_API_KEY" # Replace with your key, or leave empty to use .env
-TEXT_API_BASE="https://api.deepseek.com/v1" # Example: DeepSeek API
-TEXT_MODEL="deepseek-chat"
-VISION_MODEL="deepseek-vl-chat"
+TEXT_API_BASE="https://api.openai.com/v1"
+TEXT_MODEL="gpt-5-nano"
+VISION_MODEL="gpt-5-nano"
 
 # Maximum number of concurrent projects to process.
 CONCURRENCY=5
+
+#Yolo model Path
+YOLO_MODEL_PATH="pragent/model/doclayout_yolo_docstructbench_imgsz1024.pt" # Path to the YOLO model file
 
 # --- Advanced Modes ---
 # To run a baseline or ablation study, uncomment one of the following lines.
@@ -41,6 +44,7 @@ CMD_ARGS=(
     "--text-model" "$TEXT_MODEL"
     "--vision-model" "$VISION_MODEL"
     "--concurrency" "$CONCURRENCY"
+    "--model-path" "$YOLO_MODEL_PATH"
 )
 
 # Add optional arguments if they are set
