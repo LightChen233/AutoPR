@@ -54,6 +54,6 @@ CMD_ARGS=(
 [ -n "$ABLATION_MODE" ] && CMD_ARGS+=("--ablation" "$ABLATION_MODE")
 
 # Run the Python script
-python run.py "${CMD_ARGS[@]}"
+python -m pragent.run "${CMD_ARGS[@]}"
 
 echo "--- Generation Complete ---"

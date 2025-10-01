@@ -204,6 +204,7 @@ async def evaluate_preference(
         pr_test_item: PromotionDataItem, original_item: PromotionDataItem,
         instruction: str, model: str, include_images: ImageHandlingStrategy, include_pdf: bool,
         response_schema: Optional[Dict[str, Any]] = None,
+        n_samples: int = 1, enable_rotation: bool = False,
         force_json_format_in_prompt: bool = False
 ) -> Dict[str, Any]:
 
