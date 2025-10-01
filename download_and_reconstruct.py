@@ -1,162 +1,170 @@
+"""Download PRBench from Hugging Face and restore the local benchmark layout."""
+from __future__ import annotations
 
-'''
-This script downloads the PRBench dataset from the Hugging Face Hub and reconstructs the original
-file structure required by the project.
-
-It supports downloading the full dataset or a 'core' subset and can merge data from multiple runs.
-
-Usage:
-python download_and_reconstruct.py [--subset core]
-'''
-import os
-import json
-import shutil
 import argparse
-from huggingface_hub import hf_hub_download, snapshot_download
+import json
+from pathlib import Path
+from typing import Dict, List
+
+from datasets import load_dataset
 from tqdm import tqdm
 
-# The repository ID is now hardcoded.
-REPO_ID = "yzweak/PRbench"
+DEFAULT_REPO_ID = "yzweak/PRBench"
+DEFAULT_OUTPUT_DIR = Path("eval") / "data"
 
-def reconstruct_dataset(repo_id, subset, output_dir):
-    print(f"Starting dataset reconstruction...")
-    print(f"  - Repo ID: {repo_id}")
-    print(f"  - Subset: {subset}")
-    print(f"  - Output Dir: {output_dir}")
 
-    # --- Step 1: Setup directories ---
-    # Directories are now created with exist_ok=True to support merging.
-    base_dir = os.path.abspath(os.path.join(output_dir, os.pardir, os.pardir))
-    input_dir = os.path.join(base_dir, "papers")
-    
-    fine_grained_dir = os.path.join(output_dir, "Fine_grained_evaluation")
-    twitter_dir = os.path.join(output_dir, "twitter_figure")
-    xhs_dir = os.path.join(output_dir, "xhs_figure")
+def ensure_dirs(output_dir: Path) -> Dict[str, Path]:
+    base_dir = output_dir.resolve().parent.parent
+    input_dir = base_dir / "input_dir"
+    fine_dir = output_dir / "Fine_grained_evaluation"
+    twitter_dir = output_dir / "twitter_figure"
+    xhs_dir = output_dir / "xhs_figure"
 
-    os.makedirs(fine_grained_dir, exist_ok=True)
-    os.makedirs(twitter_dir, exist_ok=True)
-    os.makedirs(xhs_dir, exist_ok=True)
-    os.makedirs(input_dir, exist_ok=True)
-    print(f"Ensured output directories exist.")
-    print(f"Generated input directory at: {input_dir}")
+    for directory in (output_dir, input_dir, fine_dir, twitter_dir, xhs_dir):
+        directory.mkdir(parents=True, exist_ok=True)
 
-    # --- Step 2: Download and filter metadata ---
-    print("Downloading metadata (data.jsonl)...")
-    try:
-        jsonl_path = hf_hub_download(repo_id=repo_id, filename="data.jsonl", repo_type="dataset")
-    except Exception as e:
-        print(f"Error downloading data.jsonl: {e}")
-        print("Please ensure the repository ID is correct and you have the necessary permissions.")
-        return
+    return {
+        "base_dir": base_dir,
+        "input_dir": input_dir,
+        "fine_dir": fine_dir,
+        "twitter_dir": twitter_dir,
+        "xhs_dir": xhs_dir,
+    }
 
-    with open(jsonl_path, 'r', encoding='utf-8') as f:
-        all_records = [json.loads(line) for line in f]
 
-    if subset == 'core':
-        print("Filtering for 'core' subset...")
-        records_to_process = [r for r in all_records if r.get('is_core', False)]
-    else:
-        records_to_process = all_records
+def _write_bytes(path: Path, data: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("wb") as handle:
+        handle.write(data)
 
-    print(f"Processing {len(records_to_process)} records.")
 
-    # --- Step 3: Download and place files ---
-    
-    required_arxiv_ids = {r['arxiv_id'] for r in records_to_process if r.get('arxiv_id')}
-    required_figure_ids = {r['id'] for r in records_to_process if r.get('platform_source') in ["TWITTER", "XHS_NOTE"] and r.get('id')}
+def _write_text(path: Path, data: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
+        handle.write(data)
 
-    print(f"Downloading {len(required_arxiv_ids)} unique papers and checklists...")
-    for arxiv_id in tqdm(required_arxiv_ids, desc="Papers/Checklists"):
-        paper_dir = os.path.join(fine_grained_dir, arxiv_id)
-        os.makedirs(paper_dir, exist_ok=True)
 
-        pdf_local_path = os.path.join(paper_dir, f"{arxiv_id}.pdf")
-        if not os.path.exists(pdf_local_path):
-            try:
-                pdf_path_on_hub = f"files/papers/{arxiv_id}.pdf"
-                hf_hub_download(
-                    repo_id=repo_id, 
-                    filename=pdf_path_on_hub, 
-                    repo_type="dataset",
-                    local_dir=paper_dir,
-                    local_dir_use_symlinks=False
-                )
-                os.rename(os.path.join(paper_dir, pdf_path_on_hub), pdf_local_path)
-            except Exception:
-                pass
+def reconstruct(repo_id: str, subset: str, output_dir: Path) -> None:
+    print(f"Loading dataset from {repo_id} (split={subset})...")
+    dataset = load_dataset(repo_id, split="full", trust_remote_code=True)
+    print(f"Loaded {len(dataset)} records.")
 
-        checklist_local_path = os.path.join(paper_dir, "Factual_accuracy", "checklist.yaml")
-        if not os.path.exists(checklist_local_path):
-            try:
-                checklist_path_on_hub = f"files/checklists/{arxiv_id}.yaml"
-                checklist_dest_dir = os.path.join(paper_dir, "Factual_accuracy")
-                os.makedirs(checklist_dest_dir, exist_ok=True)
-                hf_hub_download(
-                    repo_id=repo_id, 
-                    filename=checklist_path_on_hub, 
-                    repo_type="dataset",
-                    local_dir=checklist_dest_dir,
-                    local_dir_use_symlinks=False
-                )
-                os.rename(os.path.join(checklist_dest_dir, checklist_path_on_hub), checklist_local_path)
-            except Exception:
-                pass
-        
-        # Populate input_dir
-        if os.path.exists(pdf_local_path):
-            associated_records = [r for r in records_to_process if r.get('arxiv_id') == arxiv_id and r.get('id')]
-            for record in associated_records:
-                input_subdir = os.path.join(input_dir, record['id'])
-                os.makedirs(input_subdir, exist_ok=True)
-                shutil.copy(pdf_local_path, os.path.join(input_subdir, f"{arxiv_id}.pdf"))
+    dirs = ensure_dirs(output_dir)
 
-    print(f"Downloading {len(required_figure_ids)} unique figure sets...")
-    figure_records = [r for r in records_to_process if r.get('id') in required_figure_ids]
-    
-    for record in tqdm(figure_records, desc="Figures"):
-        figure_id = record['id']
-        platform = record['platform_source']
-        dest_dir = twitter_dir if platform == "TWITTER" else xhs_dir
-        figure_dest_path = os.path.join(dest_dir, figure_id)
+    # Prepare metadata aggregation for JSON dumps.
+    full_records: List[Dict] = []
+    figure_written = set()
+    pdf_written = set()
+    processed = 0
 
-        if not os.path.exists(figure_dest_path):
-            try:
-                snapshot_download(
-                    repo_id=repo_id,
-                    repo_type="dataset",
-                    allow_patterns=f"files/figures/{figure_id}/*",
-                    local_dir=figure_dest_path,
-                    local_dir_use_symlinks=False,
-                    ignore_patterns=["*.md", ".gitattributes"],
-                )
-                nested_fig_dir = os.path.join(figure_dest_path, "files", "figures", figure_id)
-                if os.path.exists(nested_fig_dir):
-                    for f_name in os.listdir(nested_fig_dir):
-                        shutil.move(os.path.join(nested_fig_dir, f_name), os.path.join(figure_dest_path, f_name))
-                    shutil.rmtree(os.path.join(figure_dest_path, "files"))
-            except Exception:
-                pass
+    for record in tqdm(dataset, desc="Rebuilding assets"):
+        origin_data_raw = record.get("origin_data") or "{}"
+        try:
+            origin_data = json.loads(origin_data_raw)
+        except json.JSONDecodeError:
+            origin_data = {}
 
-    # --- Step 4: Recreate promotion JSON files ---
-    print("Recreating promotion JSON files...")
-    with open(os.path.join(output_dir, "academic_promotion_data.json"), 'w', encoding='utf-8') as f_full:
-        for record in all_records:
-            f_full.write(json.dumps(record) + '\n')
+        metadata = {
+            "title": record.get("title", ""),
+            "arxiv_id": record.get("arxiv_id", ""),
+            "PDF_path": record.get("PDF_path", ""),
+            "platform_source": record.get("platform_source", ""),
+            "id": record.get("id", ""),
+            "figure_path": record.get("figure_path", []),
+            "markdown_content": record.get("markdown_content", ""),
+            "origin_data": origin_data,
+            "is_core": bool(record.get("is_core")),
+            "paper_pdf_path": record.get("paper_pdf_filename", ""),
+            "checklist_yaml_path": record.get("checklist_filename", ""),
+        }
+        full_records.append(metadata)
 
-    core_records = [r for r in all_records if r.get('is_core', False)]
-    with open(os.path.join(output_dir, "academic_promotion_data_core.json"), 'w', encoding='utf-8') as f_core:
-        for record in core_records:
-            f_core.write(json.dumps(record) + '\n')
+        if subset == "core" and not metadata["is_core"]:
+            continue
 
-    print("\nDataset reconstruction complete!")
-    print(f"Data is available at: {output_dir}")
-    print(f"Input directory generated at: {input_dir}")
+        processed += 1
+
+        arxiv_id = metadata["arxiv_id"]
+        post_id = metadata["id"]
+        platform = (metadata["platform_source"] or "").upper()
+
+        # Restore PDFs + checklists under Fine_grained_evaluation.
+        if arxiv_id:
+            paper_dir = dirs["fine_dir"] / arxiv_id
+            pdf_filename = record.get("paper_pdf_filename") or f"{arxiv_id}.pdf"
+            pdf_bytes: bytes = record.get("paper_pdf") or b""
+            if pdf_bytes and arxiv_id not in pdf_written:
+                _write_bytes(paper_dir / pdf_filename, pdf_bytes)
+                pdf_written.add(arxiv_id)
+
+            checklist_filename = record.get("checklist_filename") or "checklist.yaml"
+            checklist_text: str = record.get("checklist_yaml") or ""
+            if checklist_text:
+                _write_text(paper_dir / "Factual_accuracy" / checklist_filename, checklist_text)
+
+            # Populate input_dir entry for this promotion.
+            if pdf_bytes:
+                promo_dir = dirs["input_dir"] / str(post_id)
+                target_pdf = promo_dir / pdf_filename
+                if not target_pdf.exists():
+                    _write_bytes(target_pdf, pdf_bytes)
+
+        # Restore figures.
+        figure_paths = metadata["figure_path"] or []
+        figures = record.get("figures") or []
+        for rel_path, figure_entry in zip(figure_paths, figures):
+            dest_rel = Path(rel_path)
+            if dest_rel.parts and dest_rel.parts[0] == "files":
+                dest_rel = Path(*dest_rel.parts[1:])
+            if dest_rel.parts and dest_rel.parts[0] == "figures":
+                dest_rel = Path(*dest_rel.parts[1:])
+
+            dest_root = dirs["twitter_dir"] if platform == "TWITTER" else dirs["xhs_dir"]
+            dest_path = dest_root / dest_rel
+
+            if str(dest_path) in figure_written:
+                continue
+
+            if isinstance(figure_entry, dict):
+                if figure_entry.get("bytes"):
+                    data = figure_entry["bytes"]
+                elif figure_entry.get("path"):
+                    data = Path(figure_entry["path"]).read_bytes()
+                else:
+                    continue
+            elif isinstance(figure_entry, (str, Path)):
+                data = Path(figure_entry).read_bytes()
+            else:
+                continue
+
+            _write_bytes(dest_path, data)
+            figure_written.add(str(dest_path))
+
+    # Write metadata files.
+    academic_path = output_dir / "academic_promotion_data.json"
+    _write_text(academic_path, json.dumps(full_records, ensure_ascii=False, indent=2))
+
+    core_subset = [record for record in full_records if record.get("is_core")]
+    _write_text(output_dir / "academic_promotion_data_core.json", json.dumps(core_subset, ensure_ascii=False, indent=2))
+
+    print(f"Reconstructed {processed} records for subset '{subset}'.")
+    print("\nReconstruction complete!")
+    print(f"Metadata directory: {output_dir}")
+    print(f"Input directory: {dirs['input_dir']}")
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Download and reconstruct the PRBench dataset.")
+    parser.add_argument("--repo-id", default=DEFAULT_REPO_ID, help="Hugging Face dataset repository ID.")
+    parser.add_argument("--subset", default="full", choices=["full", "core"], help="Dataset split to download.")
+    parser.add_argument("--output-dir", default=DEFAULT_OUTPUT_DIR, type=Path, help="Destination directory (default: eval/data).")
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    reconstruct(args.repo_id, args.subset, args.output_dir)
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Download and reconstruct the PRBench dataset from Hugging Face Hub.")
-    parser.add_argument("--subset", type=str, default="full", choices=["full", "core"], help="The subset to download ('full' or 'core'). Defaults to 'full'.")
-    parser.add_argument("--output_dir", type=str, default=os.path.join("eval", "data"), help="The local directory to reconstruct the data in. Defaults to 'eval/data'.")
-    
-    args = parser.parse_args()
-    
-    reconstruct_dataset(REPO_ID, args.subset, args.output_dir)
+    main()
