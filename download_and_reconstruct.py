@@ -13,7 +13,7 @@ from datasets import load_dataset
 from tqdm import tqdm
 
 DEFAULT_REPO_ID = "yzweak/PRBench"
-DEFAULT_OUTPUT_DIR = Path("eval_test") / "data"
+DEFAULT_OUTPUT_DIR = Path("eval") / "data"
 
 
 def _json_default(value: Any) -> Any:
