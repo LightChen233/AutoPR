@@ -1,8 +1,8 @@
-eval_name: "S2_Information_Flow_Logic"
+eval_name: "S2_Logic_Attractiveness"
 base_type: "single_note"
 description: "Assesses the logical coherence and clarity of the information sequence in the promotion."
 instruction: |
-  You are a Content Strategist specializing in science communication. Your task is to review a social media post about an academic study and evaluate its **'Information Flow Logic'** specifically for a non-expert audience.
+  You are a Content Strategist specializing in science communication. Your task is to review a social media post about an academic study and evaluate its **'Logic_Attractiveness'** specifically for a non-expert audience.
 
   Your evaluation should consist of two parts:
   1.  An **Overall Assessment** that explains your reasoning.

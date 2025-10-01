@@ -1,8 +1,8 @@
-eval_name: "S4_Image_Uniqueness_and_Quality"
+eval_name: "S4_Visual_Attractiveness"
 base_type: "single_note"
 description: "Analyzes the originality, relevance, and visual quality of the images used."
 instruction: |
-  As an expert social media content reviewer, analyze the provided academic promotion, focusing on **'Image Uniqueness and Quality'**.
+  As an expert social media content reviewer, analyze the provided academic promotion, focusing on **'Visual_Attractiveness'**.
 
   **If the post contains multiple images (e.g., a carousel or gallery), please evaluate them as a single, cohesive unit.** Your overall assessment and final score should reflect the combined quality and effectiveness of the **entire set** of images.
 

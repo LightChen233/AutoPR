@@ -60,9 +60,9 @@ FORCE_JSON_PROMPT=false
 # To run ALL evaluations found in the configs directory, leave this list empty: EVALS_TO_RUN=()
 EVALS_TO_RUN=(
     "S1_Authorship_and_Title_Accuracy"
-    "S2_Information_Flow_Logic" #rename to Logic attractiveness
+    "S2_Logic_Attractiveness"
     "S3_Contextual_Relevance"
-    "S4_Image_Uniqueness_and_Quality" #rename to Visual attractiveness
+    "S4_Visual_Attractiveness"
     "S5_Optimal_Visual_to_Text_Ratio"
     "S7_Engagement_Hook_Strength"
     "S8_Hashtag_and_Mention_Strategy"

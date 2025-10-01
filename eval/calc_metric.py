@@ -200,9 +200,9 @@ def calculate_metrics(metric_results_path: str, selected_ids_path: Optional[str]
     
     # Define metric keys (aliases)
     S1 = "S1_Authorship_and_Title_Accuracy"
-    S2 = "S2_Information_Flow_Logic"
+    S2 = "S2_Logic_Attractiveness"
     S3 = "S3_Contextual_Relevance"
-    S4 = "S4_Image_Uniqueness_and_Quality"
+    S4 = "S4_Visual_Attractiveness"
     S5 = "S5_Optimal_Visual_to_Text_Ratio"
     S7 = "S7_Engagement_Hook_Strength"
     S8 = "S8_Hashtag_and_Mention_Strategy"
