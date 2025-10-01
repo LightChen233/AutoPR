@@ -94,7 +94,7 @@ def _write_text(path: Path, data: str) -> None:
 
 def reconstruct(repo_id: str, subset: str, output_dir: Path) -> None:
     print(f"Loading dataset from {repo_id} (split={subset})...")
-    dataset = load_dataset(repo_id, split="core")
+    dataset = load_dataset(repo_id, split="full")
     print(f"Loaded {len(dataset)} records.")
 
     dirs = ensure_dirs(output_dir)
