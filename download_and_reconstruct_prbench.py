@@ -15,10 +15,6 @@ python download_and_reconstruct_prbench.py \
     --subset core \
     --output-dir eval
 ```
-
-When testing locally with the artifacts produced by
-`prepare_prbench_dataset.py`, pass the path to the exported dataset via
-`--repo-id /path/to/prepared_prbench/dataset --local-assets /path/to/prepared_prbench/assets`.
 """
 from __future__ import annotations
 
