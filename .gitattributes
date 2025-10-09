@@ -1,5 +1,0 @@
-data_preparation/Fine_grained_evaluation.zip filter=lfs diff=lfs merge=lfs -text
-data_preparation/twitter_figure.zip filter=lfs diff=lfs merge=lfs -text
-data_preparation/xhs_figure.zip filter=lfs diff=lfs merge=lfs -text
-data_preparation/academic_promotion_data.json filter=lfs diff=lfs merge=lfs -text
-data_preparation/academic_promotion_data_core.json filter=lfs diff=lfs merge=lfs -text

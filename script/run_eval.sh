@@ -17,11 +17,11 @@
 # Set the core paths and parameters for the benchmark run.
 
 # Path to the main data file containing original promotion data items.
-DATA_PATH="eval/data/academic_promotion_data_lite.json"
+DATA_PATH="eval/data/academic_promotion_data_core.json"
 # Directory containing the YAML configuration files for each evaluation.
 CONFIGS_DIR="eval/configs"
 # File path where the evaluation metric results will be saved (in JSONL format).
-METRIC_OUTPUT_PATH="llm_metric_results_lite-0731.jsonl"
+METRIC_OUTPUT_PATH="llm_metric_result.jsonl"
 # Number of concurrent requests to send to the LLM API.
 CONCURRENCY=10
 
@@ -31,7 +31,7 @@ CONCURRENCY=10
 # "pr_test": Use the data found in the directory specified by PR_TEST_DIR.
 TARGET_DATA_SOURCE="pr_test"
 
-# Path to the directory containing the "Pull Request" (candidate) test data.
+# Path to the directory containing test data.
 # This is only used if TARGET_DATA_SOURCE is set to "pr_test".
 PR_TEST_DIR="output"
 
@@ -46,11 +46,12 @@ OVERRIDE_MODEL=""
 # Override the image handling strategy for all applicable evals.
 # This will NOT change evals that are originally set to "none" in their YAML config.
 # Options: "real", "placeholder"
+# This option has been deprecated; please do not modify it
 OVERRIDE_IMAGES=""
 
 # Force JSON output via prompt injection. Useful for models without native JSON mode support.
 # Options: true, false
-FORCE_JSON_PROMPT=false
+FORCE_JSON_PROMPT=true
 
 
 # --- Evaluation Selection & Reset ---
