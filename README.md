@@ -111,11 +111,10 @@ The entire workflow, from generation to evaluation, is managed through simple sh
 Download the PRBench dataset from Hugging Face Hub. You can choose to download the full dataset or the core subset.
 
 ```bash
-# Download the full dataset
-python3 download_and_reconstruct.py --subset full
-
-# Or download the core subset
-python3 download_and_reconstruct.py --subset core
+python download_and_reconstruct_prbench.py \
+    --repo-id yzweak/PRBench \
+    --subset core \ # or "full"
+    --output-dir eval
 ```
 
 You also need to download the [DocLayout-YOLO](https://huggingface.co/juliozhao/DocLayout-YOLO-DocStructBench/blob/main/doclayout_yolo_docstructbench_imgsz1024.pt) model. You can specify the path to the model using the `--model-path` argument in the generation script.
