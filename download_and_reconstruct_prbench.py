@@ -59,9 +59,7 @@ def load_split(args: argparse.Namespace) -> Dataset:
 
 
 def ensure_output_dirs(root: Path, overwrite: bool) -> Dict[str, Path]:
-    if root.exists():
-        if not overwrite:
-            raise FileExistsError(f"Output directory already exists: {root}")
+    if root.exists() and overwrite:
         import shutil
         shutil.rmtree(root)
     data_dir = root / "data"
