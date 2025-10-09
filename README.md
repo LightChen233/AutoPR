@@ -187,7 +187,7 @@ chmod +x scripts/run_pragent.sh
 ## ☎️ Contact
 If interested in our work, please contact us at:
 - Qiguang Chen: charleschen2333@gmail.com
-- Zheng Yan: xxx
+- Zheng Yan: zyan@ir.hit.edu.cn
 
 ## 🎁 Citation
 ```
