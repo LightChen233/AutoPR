@@ -23,7 +23,7 @@
 
 <p align="center">
   	<b>
-    | [<a href="https://arxiv.org/abs/XXX">📝 ArXiv</a>] | [<a href="https://github.com/LightChen233/AutoPR">📚 Github Code</a>] | [<a href="https://huggingface.co/datasets/yzweak/PRBench">🤗 PRBench</a>] | [<a href="https://huggingface.co/spaces/yzweak/AutoPR">🔥 PRAgent Demo</a>] |
+    | [<a href="https://arxiv.org/abs/XXX">📝 ArXiv</a>] | [<a href="https://yzweak.github.io/autopr.github.io/">📚 Project Website</a>] | [<a href="https://huggingface.co/datasets/yzweak/PRBench">🤗 PRBench</a>] | [<a href="https://huggingface.co/spaces/yzweak/AutoPR">🔥 PRAgent Demo</a>] |
     </b>
     <br />
 </p>
