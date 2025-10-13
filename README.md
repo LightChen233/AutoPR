@@ -36,8 +36,6 @@ This is the official implementation for **"AUTOPR: LET'S AUTOMATE YOUR ACADEMIC 
 ## 👀 1. Overview
 As the volume of peer-reviewed research surges, scholars increasingly rely on social platforms for discovery, while authors invest significant effort in promotion to sustain visibility and citations. This project aims to address that challenge.
 
-
-
 We formalize **AutoPR (Automatic Promotion)**, a new task to automatically translate research papers into faithful, engaging, and well-timed public-facing content. To accomplish this, we developed **PRAgent**, a modular agentic framework for automatically transforming research papers into promotional posts optimized for specific social media platforms.
 
 ![](assets/images/intro.png)
